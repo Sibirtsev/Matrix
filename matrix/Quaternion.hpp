@@ -2,12 +2,22 @@
  * @file Quaternion.hpp
  *
  * All rotations and axis systems follow the right-hand rule.
+ * The Hamilton quaternion product definition is used.
  *
- * In order to rotate a vector v by a righthand rotation defined by the quaternion q
+ * In order to rotate a vector in frame b (v_b) to frame n by a righthand
+ * rotation defined by the quaternion q_nb (from frame b to n)
  * one can use the following operation:
- * v_rotated = q^(-1) * [0;v] * q
- * where q^(-1) represents the inverse of the quaternion q.
- * The product z of two quaternions z = q1 * q2 represents an intrinsic rotation
+ * v_n = q_nb * [0;v_b] * q_nb^-1
+ *
+ * Just like DCM's: v_n = C_nb * v_b (vector rotation)
+ * M_n = C_nb * M_b * C_nb^(-1) (matrix rotation)
+ *
+ * or similarly
+ * v_b = q_nb^1 * [0;v_n] * q_nb
+ *
+ * where q_nb^(-1) represents the inverse of the quaternion q_nb =  q_bn
+ *
+ * The product z of two quaternions z = q2 * q1 represents an intrinsic rotation
  * in the order of first q1 followed by q2.
  * The first element of the quaternion
  * represents the real part, thus, a quaternion representing a zero-rotation
@@ -212,9 +222,9 @@ public:
         const Quaternion &p = *this;
         Quaternion r;
         r(0) = p(0) * q(0) - p(1) * q(1) - p(2) * q(2) - p(3) * q(3);
-        r(1) = p(0) * q(1) + p(1) * q(0) - p(2) * q(3) + p(3) * q(2);
-        r(2) = p(0) * q(2) + p(1) * q(3) + p(2) * q(0) - p(3) * q(1);
-        r(3) = p(0) * q(3) - p(1) * q(2) + p(2) * q(1) + p(3) * q(0);
+        r(1) = p(0) * q(1) + p(1) * q(0) + p(2) * q(3) - p(3) * q(2);
+        r(2) = p(0) * q(2) - p(1) * q(3) + p(2) * q(0) + p(3) * q(1);
+        r(3) = p(0) * q(3) + p(1) * q(2) - p(2) * q(1) + p(3) * q(0);
         return r;
     }
 
@@ -253,11 +263,29 @@ public:
     }
 
     /**
-     * Computes the derivative
+     * Computes the derivative of q_12 when
+     * rotated with angular velocity expressed in frame 2
+     * v_2 = q_12 * v_1 * q_12^-1
+     * d/dt q_12 = 0.5 * q_12 * omega_12_2
      *
-     * @param w direction
+     * @param w angular rate in frame 2
      */
-    Matrix41 derivative(const Matrix31 &w) const
+    Matrix41 derivative1(const Matrix31 &w) const
+    {
+        const Quaternion &q = *this;
+        Quaternion<Type> v(0, w(0, 0), w(1, 0), w(2, 0));
+        return q * v  * Type(0.5);
+    }
+
+    /**
+     * Computes the derivative of q_12 when
+     * rotated with angular velocity expressed in frame 2
+     * v_2 = q_12 * v_1 * q_12^-1
+     * d/dt q_12 = 0.5 * omega_12_1 * q_12
+     *
+     * @param w angular rate in frame (typically reference frame)
+     */
+    Matrix41 derivative2(const Matrix31 &w) const
     {
         const Quaternion &q = *this;
         Quaternion<Type> v(0, w(0, 0), w(1, 0), w(2, 0));
@@ -265,14 +293,11 @@ public:
     }
 
     /**
-     * Invert quaternion
+     * Invert quaternion in place
      */
     void invert()
     {
-        Quaternion &q = *this;
-        q(1) *= -1;
-        q(2) *= -1;
-        q(3) *= -1;
+        *this = this->inversed();
     }
 
     /**
@@ -283,12 +308,12 @@ public:
     Quaternion inversed()
     {
         Quaternion &q = *this;
-        Quaternion ret;
-        ret(0) = q(0);
-        ret(1) = -q(1);
-        ret(2) = -q(2);
-        ret(3) = -q(3);
-        return ret;
+        Type normSq = q.dot(q);
+        return Quaternion(
+                   q(0)/normSq,
+                   -q(1)/normSq,
+                   -q(2)/normSq,
+                   -q(3)/normSq);
     }
 
     /**
