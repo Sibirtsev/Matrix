@@ -99,12 +99,12 @@ int main()
     // dcm renormalize
     Dcmf A = eye<float, 3>();
     Dcmf R(euler_check);
-    for (int i = 0; i < 1000; i++) {
+    for (size_t i = 0; i < 1000; i++) {
         A = R * A;
     }
     A.renormalize();
     float err = 0.0f;
-    for (int row = 0; row < 3; row++) {
+    for (size_t row = 0; row < 3; row++) {
         matrix::Vector3f rvec(A._data[row]);
         err += fabsf(1.0f - rvec.length());
     }
@@ -280,7 +280,7 @@ int main()
     float q_array[] = {0.9833f, -0.0343f, -0.1060f, -0.1436f};
     Quaternion<float>q_from_array(q_array);
 
-    for (int i = 0; i < 4; i++) {
+    for (size_t i = 0; i < 4; i++) {
         TEST(fabsf(q_from_array(i) - q_array[i]) < eps);
     }
 
@@ -343,6 +343,6 @@ int main()
     q = Quatf(0,0,0,1); // 180 degree rotation around the z axis
     R = Dcmf(q);
     TEST(isEqual(q, Quatf(R)));
-};
+}
 
 /* vim: set et fenc=utf-8 ff=unix sts=0 sw=4 ts=4 : */

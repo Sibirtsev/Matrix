@@ -149,12 +149,12 @@ public:
         Vector<Type, 4>()
     {
         Quaternion &q = *this;
-        Type cosPhi_2 = Type(cos(euler.phi() / (Type)2.0));
-        Type cosTheta_2 = Type(cos(euler.theta() / (Type)2.0));
-        Type cosPsi_2 = Type(cos(euler.psi() / (Type)2.0));
-        Type sinPhi_2 = Type(sin(euler.phi() / (Type)2.0));
-        Type sinTheta_2 = Type(sin(euler.theta() / (Type)2.0));
-        Type sinPsi_2 = Type(sin(euler.psi() / (Type)2.0));
+        Type cosPhi_2 = Type(cos(euler.phi() / Type(2.0)));
+        Type cosTheta_2 = Type(cos(euler.theta() / Type(2.0)));
+        Type cosPsi_2 = Type(cos(euler.psi() / Type(2.0)));
+        Type sinPhi_2 = Type(sin(euler.phi() / Type(2.0)));
+        Type sinTheta_2 = Type(sin(euler.theta() / Type(2.0)));
+        Type sinPsi_2 = Type(sin(euler.psi() / Type(2.0)));
         q(0) = cosPhi_2 * cosTheta_2 * cosPsi_2 +
                sinPhi_2 * sinTheta_2 * sinPsi_2;
         q(1) = sinPhi_2 * cosTheta_2 * cosPsi_2 -
@@ -176,8 +176,8 @@ public:
         Quaternion &q = *this;
         Type angle = aa.norm();
         Vector<Type, 3> axis = aa.unit();
-        if (angle < (Type)1e-10) {
-            q(0) = (Type)1.0;
+        if (angle < Type(1e-10)) {
+            q(0) = Type(1.0);
             q(1) = q(2) = q(3) = 0;
         } else {
             Type magnitude = sinf(angle / 2.0f);
@@ -357,8 +357,8 @@ public:
         Quaternion &q = *this;
         Type theta = vec.norm();
 
-        if (theta < (Type)1e-10) {
-            q(0) = (Type)1.0;
+        if (theta < Type(1e-10)) {
+            q(0) = Type(1.0);
             q(1) = q(2) = q(3) = 0;
             return;
         }
@@ -379,8 +379,8 @@ public:
     {
         Quaternion &q = *this;
 
-        if (theta < (Type)1e-10) {
-            q(0) = (Type)1.0;
+        if (theta < Type(1e-10)) {
+            q(0) = Type(1.0);
             q(1) = q(2) = q(3) = 0;
         }
 
@@ -411,9 +411,9 @@ public:
         vec(1) = q(2);
         vec(2) = q(3);
 
-        if (axis_magnitude >= (Type)1e-10) {
+        if (axis_magnitude >= Type(1e-10)) {
             vec = vec / axis_magnitude;
-            vec = vec * wrap_pi((Type)2.0 * atan2f(axis_magnitude, q(0)));
+            vec = vec * wrap_pi(Type(2.0) * atan2f(axis_magnitude, q(0)));
         }
 
         return vec;

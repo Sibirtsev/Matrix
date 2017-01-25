@@ -235,11 +235,11 @@ template<typename Type, size_t M>
 SquareMatrix <Type, M> cholesky(const SquareMatrix<Type, M> & A)
 {
     SquareMatrix<Type, M> L;
-    for (int j = 0; j < M; j++) {
-        for (int i = j; i < M; i++) {
+    for (size_t j = 0; j < M; j++) {
+        for (size_t i = j; i < M; i++) {
             if (i==j) {
                 float sum = 0;
-                for (int k = 0; k < j; k++) {
+                for (size_t k = 0; k < j; k++) {
                     sum += L(j, k)*L(j, k);
                 }
                 Type res = A(j, j) - sum;
@@ -250,7 +250,7 @@ SquareMatrix <Type, M> cholesky(const SquareMatrix<Type, M> & A)
                 }
             } else {
                 float sum = 0;
-                for (int k = 0; k < j; k++) {
+                for (size_t k = 0; k < j; k++) {
                     sum += L(i, k)*L(j, k);
                 }
                 if (L(j, j) <= 0) {
